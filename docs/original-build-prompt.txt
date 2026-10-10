@@ -1,0 +1,52 @@
+Build a welcoming church website and connected administration platform for RCCG Peculiar Treasures Parish. Use the accompanying RCCG_Peculiar_Treasures_PRD.docx as the product requirements. This prompt is an implementation brief, not evidence that any system is already deployed.
+
+DESIGN AND PURPOSE
+Create a unique, friendly, lively experience that makes it easy to plan a first visit, understand the church, find the next service, watch sermons and participate in programmes. Connect it to a private dashboard and a weekly content production service. Programme information must be entered once and reused across the website, calendar, graphics and captions.
+
+Use this existing Figma file as the dashboard design reference:
+https://www.figma.com/design/QTZTCBFYPcWMOoGBLmRbpn/PTP-CMS?node-id=0-1
+Inspect the actual file before implementing its screens. Preserve its purple identity, navigation structure and card patterns, while making the public website more expressive with approved photography, warm copy and restrained motion. Use DM Sans unless a different licensed font is approved. Do not assume the Figma file already has a working backend. Existing dashboard modules include Home, Members, Departments, Programmes, Finance, Calendar, Messages, Reports, Notifications, Settings, Inventory and Profile. Confirm workflows against the actual designs and PRD.
+
+STACK
+Use TypeScript, a supported stable Next.js release with the App Router, Tailwind CSS and accessible shadcn/ui primitives. Use Motion for React sparingly and respect reduced-motion settings. Use Supabase PostgreSQL, Auth and Storage, version-controlled SQL migrations and row-level security. Use Inngest for scheduled jobs, durable workflows and controlled retries. Use server-side HTML/SVG templates with Playwright and Sharp for repeatable branded graphics. Use an OpenAI adapter for grounded caption drafts and optional decorative image assets. Use a Buffer API adapter for eligible social publishing, plus a manual export fallback. Initially deploy the web app to Vercel; choose a compatible worker runtime for image rendering after validating execution limits. Isolate providers behind interfaces so hosting, publishing or AI services can be replaced. Never place secrets or privileged service credentials in client code.
+
+PUBLIC WEBSITE
+Implement a responsive Home page, Plan Your Visit, About and Leadership, Programmes and Calendar, Sermons and Watch Live, Ministries and Get Involved, Gallery and approved Testimonies, Prayer and Contact, and newsletter signup. Giving is a later feature unless explicitly confirmed. Create a prominent dynamic This Sunday card, clear directions, service time, calendar links and a first-visit journey. Keep prayer requests private. Publish only approved testimonials and photographs. No autoplay audio, fabricated testimonies, fake leadership profiles or invented church facts. Provide clear empty states where confirmed content is unavailable. Label demonstration data in development and exclude it from production.
+
+The planning context identifies the church as RCCG Peculiar Treasures Parish  in Ado-Ekiti, with a proposed Sunday time of 7:00–8:20 a.m. and recurring themes: first Sunday Celebration Service, second Prophetic Sunday, third Elevation Service, fourth Love Sunday. Treat all of these as facts requiring church confirmation before publishing. Do not infer fifth-Sunday arrangements. Store timestamps in UTC and display/schedule church activity in Africa/Lagos.
+
+PRIVATE DASHBOARD
+Build role-based modules for the existing administrative areas and add Website Content, Content Studio, Social Accounts, Approvals and Automation. Define least-privilege permissions for administrators, pastoral approvers, media editors, department heads, finance users and pastoral-care users. Enforce permissions on the server and in database policies, not just by hiding buttons. Publish public projections of programme and sermon data; never expose full administrative tables. Finance, private prayer requests and member information must remain restricted. Do not send sensitive pastoral, health, donor or disciplinary data to the AI provider.
+
+WEEKLY CONTENT AUTOMATION
+Build a configurable weekly workflow:
+1. Select approved programmes, verified sermon notes, themes, scriptures and church announcements.
+2. Draft channel-specific captions using only those records and retain source references.
+3. Render graphics using reusable branded templates, compositing exact logo, text, date, time, address and approved photographs. AI must not be responsible for rendering essential flyer text or logos.
+4. Validate required fields, template overflow, dates, links, image dimensions and missing information.
+5. Send an immutable content version to a designated church approver.
+6. Schedule only approved content to connected channels whose account and format capabilities have been verified.
+7. Record the provider response, reconcile publication status and present per-channel results and failures in the dashboard.
+
+Offer six to ten reusable templates: Sunday invitation, programme announcement, sermon quote, scripture encouragement, recap, birthday or anniversary, ministry spotlight, special celebration and reminders as appropriate. Initial export formats may include 1080x1350, 1080x1080 and 1080x1920, but validate each channel's current requirements. Keep essential text editable through structured fields. Use licensed assets and consented portraits. Do not generate realistic images of identifiable church members without their approval.
+
+The default editorial cadence is a proposal: Monday recap, Wednesday encouragement, Friday invitation, Saturday reminder and Sunday service content. Make frequency and themes configurable. Missing fifth-Sunday information or an unconfirmed venue/time must block the affected content. If source programme data changes, invalidate pending approval and cancel or replace affected unsent posts safely. Corrections to already published content require an explicit editorial decision. Start with human approval; introduce automatic approval only for explicitly allowed, tested content categories.
+
+PUBLISHING RELIABILITY
+Do not promise posting to all platforms without validating the church's exact account types, permissions and desired formats. Some formats require manual actions. Treat WhatsApp groups, Status or Channels, YouTube uploads and other unsupported formats as separate capability assessments; provide exports where automation is unavailable. Use secure account connections rather than passwords in chat.
+
+Track content states separately from each destination's delivery state. Include Pending, Accepted, Published, Failed, Unknown and Canceled per destination. A provider accepting a request is not proof that a post is live. Use idempotency keys, bounded retries and reconciliation before retrying an uncertain result. A retry must not create duplicate posts. Support disconnect handling, publication pause, manual export and understandable error messages. Test one permitted test post on each initial channel before enabling normal publishing.
+
+QUALITY AND DELIVERY
+Target WCAG 2.2 AA, keyboard access, visible focus, readable contrast, accessible forms and reduced motion. Use responsive images and measure real performance. Proposed production targets are p75 LCP <=2.5 seconds, INP <=200 ms and CLS <=0.1; report measured results rather than claiming them without evidence. Add audit logs, server-side validation, rate limits for public forms, secure upload handling, database and storage backups, restore testing, cost caps and operational alerts. If giving is enabled, use a verified payment provider and signed webhook verification, deduplication and server-side confirmation; never mark a donation successful from the browser redirect alone.
+
+Work incrementally:
+Phase 1: Confirm church content, inspect Figma, establish data model and roles, and prove one correct branded graphic and one permitted social test post.
+Phase 2: Deliver the public website and core programme/content dashboard with real persistence.
+Phase 3: Add reviewed weekly content generation, template exports and the verified initial publishing channels.
+Phase 4: Expand operational dashboard workflows and reporting.
+Phase 5: Add optional giving, member portal, video clips, additional channels and approved automatic publication.
+
+Before dependent implementation, request only missing information that materially blocks that phase: official brand assets and name; confirmed service schedule and address; leadership and photo permissions; channel URLs and ownership; tone and approved scripture translation; approval roles; budget, domain, technical owner and launch date. Continue independent work using clearly labelled placeholders.
+
+Supply setup instructions, environment-variable examples without secrets, migrations, seed data that is visibly fictional, meaningful permission and workflow tests, a deployment guide, maintenance and restore instructions, and an honest list of configured versus pending integrations. Verify role isolation, private prayer confidentiality, graphics without clipping, changed-source invalidation, scheduling timezone, duplicate prevention, partial channel failures and unknown-delivery reconciliation. Do not describe placeholders, mocks or unconnected social accounts as functioning integrations. Deliver each phase with a usable reviewable result and evidence of the checks performed.

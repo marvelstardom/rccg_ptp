@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {demoProgrammes,canSchedule,captionFor,sundayTheme,deliveryKey,retryAllowed,dateLabel,timeLabel,validateProgramme} from '../lib/workflow';
+import {graphicSvg,dimensions,templates} from '../lib/graphics';
+import sharp from 'sharp';
+import {readFile} from 'node:fs/promises';
+import {sameOrigin} from '../lib/request-origin';
+const p={...demoProgrammes[0],venue:'Confirmed church venue'};
+test('browser origin follows original Host and rejects cross-site requests',()=>{assert.equal(sameOrigin(new Request('http://localhost:3102/api/graphics',{headers:{host:'127.0.0.1:3102',origin:'http://127.0.0.1:3102'}})),true);assert.equal(sameOrigin(new Request('https://church.example/api/admin',{headers:{host:'church.example',origin:'https://evil.example'}})),false);assert.equal(sameOrigin(new Request('https://church.example/api/admin')),false);});
+test('changed source revisions cannot be scheduled',()=>{const c={programme_id:p.id,source_revision:1,caption:'Draft',status:'approved' as const,approved_by:'pastor'};assert.equal(canSchedule(c,p),true);assert.equal(canSchedule(c,{...p,revision:2}),false);assert.equal(canSchedule({...c,approved_by:undefined},p),false);assert.equal(canSchedule(c,{...p,approved:false}),false);});
+test('fifth Sundays have no inferred theme',()=>{assert.equal(sundayTheme(1),'Celebration Service');assert.equal(sundayTheme(14),'Prophetic Sunday');assert.equal(sundayTheme(28),'Love Sunday');assert.equal(sundayTheme(29),null);});
+test('dates and captions use Lagos time and approved public sources',()=>{assert.match(timeLabel('2026-10-11T06:00:00Z'),/7:00/);assert.match(dateLabel('2026-10-10T23:30:00Z'),/11/);assert.match(captionFor(p),/Confirmed church venue/);assert.throws(()=>captionFor({...p,approved:false}));assert.throws(()=>validateProgramme({...p,venue:''}));assert.throws(()=>validateProgramme({...p,ends_at:p.starts_at}));});
+test('delivery identities are stable and Unknown or Accepted is not blindly retried',()=>{assert.equal(deliveryKey('c',2,'instagram'),'c:2:instagram');assert.equal(retryAllowed('Unknown'),false);assert.equal(retryAllowed('Accepted'),false);assert.equal(retryAllowed('Published'),false);assert.equal(retryAllowed('Failed'),true);});
+test('all six templates render at all three sizes with logo and no text overflow',async()=>{const logo='data:image/png;base64,'+(await readFile('public/images/brand/rccg.png')).toString('base64');for(const template of templates){for(const size of Object.keys(dimensions) as (keyof typeof dimensions)[]){const svg=graphicSvg(p,template,size,logo,true);assert.match(svg,/DEMONSTRATION/);const data=await sharp(Buffer.from(svg)).png().toBuffer();const m=await sharp(data).metadata();assert.deepEqual([m.width,m.height],dimensions[size]);}}});
+test('graphic text is escaped and overflow blocks export',()=>{assert.match(graphicSvg({...p,title:'Faith & <Hope>'},'invitation','portrait',''),/Faith &amp; &lt;Hope&gt;/);assert.throws(()=>graphicSvg({...p,title:'A'.repeat(80)},'invitation','square',''));});

@@ -1,0 +1,7 @@
+import {redirect} from 'next/navigation';
+import Link from 'next/link';
+import {db} from '@/lib/supabase';
+import {configured,demoMode} from '@/lib/config';
+import {Button} from '@/components/ui/button';
+async function login(form:FormData){'use server';if(!configured())return;const s=await db();const {error}=await s.auth.signInWithPassword({email:String(form.get('email')),password:String(form.get('password'))});if(error)redirect('/login?error=1');redirect('/dashboard');}
+export default async function Login({searchParams}:{searchParams:Promise<{error?:string}>}){const p=await searchParams;return <main className="login"><Link href="/">← Back to church website</Link><div className="login-card"><span className="eyebrow">Peculiar Treasures Parish · TEAM</span><h1>Welcome back.</h1><p>Sign in to the church workspace.</p>{configured()?<form action={login}><label>Email<input name="email" type="email" required autoComplete="username"/></label><label>Password<input name="password" type="password" required autoComplete="current-password"/></label><Button>Sign in securely</Button>{p.error&&<p role="alert">Unable to sign in. Check your credentials.</p>}</form>:<div className="empty">Authentication needs Supabase configuration. Setup instructions are included in README.md.</div>}{demoMode()&&<Link className="button outline" href="/dashboard">Explore local demonstration ↗</Link>}</div></main>;}
